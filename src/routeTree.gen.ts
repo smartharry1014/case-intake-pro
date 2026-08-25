@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConsultRouteImport } from './routes/consult'
+import { Route as ConsultCompleteRouteImport } from './routes/consult.complete'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,39 @@ const ConsultRoute = ConsultRouteImport.update({
   path: '/consult',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConsultCompleteRoute = ConsultCompleteRouteImport.update({
+  id: '/complete',
+  path: '/complete',
+  getParentRoute: () => ConsultRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/consult': typeof ConsultRoute
+  '/consult': typeof ConsultRouteWithChildren
+  '/consult/complete': typeof ConsultCompleteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/consult': typeof ConsultRoute
+  '/consult': typeof ConsultRouteWithChildren
+  '/consult/complete': typeof ConsultCompleteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/consult': typeof ConsultRoute
+  '/consult': typeof ConsultRouteWithChildren
+  '/consult/complete': typeof ConsultCompleteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/consult'
+  fullPaths: '/' | '/consult' | '/consult/complete'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/consult'
-  id: '__root__' | '/' | '/consult'
+  to: '/' | '/consult' | '/consult/complete'
+  id: '__root__' | '/' | '/consult' | '/consult/complete'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ConsultRoute: typeof ConsultRoute
+  ConsultRoute: typeof ConsultRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +74,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsultRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/consult/complete': {
+      id: '/consult/complete'
+      path: '/complete'
+      fullPath: '/consult/complete'
+      preLoaderRoute: typeof ConsultCompleteRouteImport
+      parentRoute: typeof ConsultRoute
+    }
   }
 }
 
+interface ConsultRouteChildren {
+  ConsultCompleteRoute: typeof ConsultCompleteRoute
+}
+
+const ConsultRouteChildren: ConsultRouteChildren = {
+  ConsultCompleteRoute: ConsultCompleteRoute,
+}
+
+const ConsultRouteWithChildren =
+  ConsultRoute._addFileChildren(ConsultRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ConsultRoute: ConsultRoute,
+  ConsultRoute: ConsultRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
