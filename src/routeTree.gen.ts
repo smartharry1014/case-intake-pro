@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConsultRouteImport } from './routes/consult'
 import { Route as ConsultCompleteRouteImport } from './routes/consult.complete'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConsultRoute = ConsultRouteImport.update({
@@ -31,30 +37,34 @@ const ConsultCompleteRoute = ConsultCompleteRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/consult': typeof ConsultRouteWithChildren
   '/consult/complete': typeof ConsultCompleteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/consult': typeof ConsultRouteWithChildren
   '/consult/complete': typeof ConsultCompleteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/consult': typeof ConsultRouteWithChildren
   '/consult/complete': typeof ConsultCompleteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/consult' | '/consult/complete'
+  fullPaths: '/' | '/auth' | '/consult' | '/consult/complete'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/consult' | '/consult/complete'
-  id: '__root__' | '/' | '/consult' | '/consult/complete'
+  to: '/' | '/auth' | '/consult' | '/consult/complete'
+  id: '__root__' | '/' | '/auth' | '/consult' | '/consult/complete'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   ConsultRoute: typeof ConsultRouteWithChildren
 }
 
@@ -65,6 +75,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/consult': {
@@ -97,6 +114,7 @@ const ConsultRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   ConsultRoute: ConsultRouteWithChildren,
 }
 export const routeTree = rootRouteImport
