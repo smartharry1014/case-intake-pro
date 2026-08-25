@@ -10,13 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConsultRouteImport } from './routes/consult'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ConsultCompleteRouteImport } from './routes/consult.complete'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -29,6 +35,11 @@ const ConsultRoute = ConsultRouteImport.update({
   path: '/consult',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ConsultCompleteRoute = ConsultCompleteRouteImport.update({
   id: '/complete',
   path: '/complete',
@@ -39,31 +50,43 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/consult': typeof ConsultRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/consult/complete': typeof ConsultCompleteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/consult': typeof ConsultRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/consult/complete': typeof ConsultCompleteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/consult': typeof ConsultRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/consult/complete': typeof ConsultCompleteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/consult' | '/consult/complete'
+  fullPaths: '/' | '/auth' | '/consult' | '/admin' | '/consult/complete'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/consult' | '/consult/complete'
-  id: '__root__' | '/' | '/auth' | '/consult' | '/consult/complete'
+  to: '/' | '/auth' | '/consult' | '/admin' | '/consult/complete'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/consult'
+    | '/_authenticated/admin'
+    | '/consult/complete'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ConsultRoute: typeof ConsultRouteWithChildren
 }
@@ -75,6 +98,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -91,6 +121,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsultRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/consult/complete': {
       id: '/consult/complete'
       path: '/complete'
@@ -100,6 +137,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface ConsultRouteChildren {
   ConsultCompleteRoute: typeof ConsultCompleteRoute
@@ -114,6 +162,7 @@ const ConsultRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ConsultRoute: ConsultRouteWithChildren,
 }
